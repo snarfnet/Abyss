@@ -1,13 +1,12 @@
 import SwiftUI
 
-struct ConsultView: View {
+struct ReflectView: View {
     @EnvironmentObject var records: RecordStore
-    @State private var question = ProcessInfo.processInfo.arguments.contains("SCREENSHOT_MODE_1") ? "私はこの道を進むべきか？" : ""
+    @State private var question = ProcessInfo.processInfo.arguments.contains("SCREENSHOT_MODE_1") ? "私は今、何を手放すべきだろう？" : ""
     @State private var focus: Double = 0
     @State private var phase: Double = 0
     @State private var thinking = false
-    @State private var verdict: Verdict?
-    @State private var line: OracleLine?
+    @State private var reflection: Reflection?
     @FocusState private var editing: Bool
 
     private let breathe = Timer.publish(every: 1.0 / 30, on: .main, in: .common).autoconnect()
@@ -44,37 +43,29 @@ struct ConsultView: View {
     }
 
     @ViewBuilder private var revealArea: some View {
-        if let v = verdict, let l = line, !thinking {
-            VStack(spacing: 14) {
-                Text(v.ja)
-                    .font(.system(size: 46, weight: .bold, design: .serif))
-                    .foregroundStyle(v.yes ? Abyss.irisHi : Abyss.mist)
-                    .shadow(color: Abyss.glow.opacity(0.6), radius: 18)
-                Text(v.en)
-                    .font(.system(size: 12, weight: .semibold)).tracking(6)
-                    .foregroundStyle(Abyss.dim)
-                VStack(spacing: 6) {
-                    Text("「\(l.ja)」")
-                        .font(.system(.callout, design: .serif))
-                        .foregroundStyle(Abyss.pale)
-                        .multilineTextAlignment(.center)
-                    Text(l.en)
-                        .font(.system(size: 12, design: .serif).italic())
-                        .foregroundStyle(Abyss.mist.opacity(0.8))
-                        .multilineTextAlignment(.center)
-                    Text("— \(l.source)")
-                        .font(.system(size: 11)).foregroundStyle(Abyss.dim)
-                        .padding(.top, 2)
-                }
+        if let r = reflection, !thinking {
+            VStack(spacing: 10) {
+                Text("「\(r.ja)」")
+                    .font(.system(size: 22, weight: .semibold, design: .serif))
+                    .foregroundStyle(Abyss.pale)
+                    .multilineTextAlignment(.center)
+                    .shadow(color: Abyss.glow.opacity(0.4), radius: 12)
+                Text(r.en)
+                    .font(.system(size: 13, design: .serif).italic())
+                    .foregroundStyle(Abyss.mist.opacity(0.85))
+                    .multilineTextAlignment(.center)
+                Text("— \(r.source)")
+                    .font(.system(size: 11)).foregroundStyle(Abyss.dim)
+                    .padding(.top, 2)
             }
             .transition(.opacity.combined(with: .scale(scale: 0.94)))
         } else if thinking {
-            Text("深淵が視ている…")
+            Text("深淵が、汝を見つめ返している…")
                 .font(.system(.callout, design: .serif))
                 .foregroundStyle(Abyss.mist)
                 .transition(.opacity)
         } else {
-            Text("問いを捧げ、眼に触れよ")
+            Text("問いを書き、眼に触れよ")
                 .font(.system(.callout, design: .serif))
                 .foregroundStyle(Abyss.dim)
         }
@@ -82,7 +73,7 @@ struct ConsultView: View {
 
     private var inputArea: some View {
         HStack(spacing: 10) {
-            TextField("はい／いいえで答えられる問いを…", text: $question, axis: .vertical)
+            TextField("心にある問いや迷いを…", text: $question, axis: .vertical)
                 .textFieldStyle(.plain)
                 .lineLimit(1...3)
                 .focused($editing)
@@ -112,17 +103,16 @@ struct ConsultView: View {
         let q = question.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty else { return }
         withAnimation(.easeOut(duration: 0.3)) {
-            verdict = nil; line = nil; thinking = true
+            reflection = nil; thinking = true
         }
         withAnimation(.easeInOut(duration: 1.4)) { focus = 1 }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
-            let (v, l) = OracleData.consult(q)
+            let r = OracleData.reflect(q)
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                verdict = v; line = l; thinking = false
+                reflection = r; thinking = false
             }
             withAnimation(.easeInOut(duration: 1.2)) { focus = 0 }
-            records.add(Record(kind: .consult, question: q, answer: v.ja,
-                               lineJa: l.ja, lineEn: l.en, source: l.source))
+            records.add(Record(question: q, lineJa: r.ja, lineEn: r.en, source: r.source))
         }
     }
 }

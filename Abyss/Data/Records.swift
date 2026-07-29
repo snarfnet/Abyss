@@ -2,11 +2,8 @@ import Foundation
 import SwiftUI
 
 struct Record: Identifiable, Codable {
-    enum Kind: String, Codable { case consult, prophecy }
     var id = UUID()
-    var kind: Kind
-    var question: String      // empty for prophecy
-    var answer: String        // 然り/否 for consult, "" for prophecy
+    var question: String
     var lineJa: String
     var lineEn: String
     var source: String
@@ -16,7 +13,7 @@ struct Record: Identifiable, Codable {
 @MainActor
 final class RecordStore: ObservableObject {
     @Published private(set) var items: [Record] = []
-    private let key = "abyss.records.v1"
+    private let key = "abyss.records.v2"
 
     init() { load() }
 

@@ -10,11 +10,11 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: $tab) {
-            ConsultView()
-                .tabItem { Label("眼", systemImage: "eye") }
+            ReflectView()
+                .tabItem { Label("観想", systemImage: "eye") }
                 .tag(0)
-            ProphecyView()
-                .tabItem { Label("予言", systemImage: "sparkles") }
+            DailyView()
+                .tabItem { Label("今日", systemImage: "sun.min") }
                 .tag(1)
             RecordsView()
                 .tabItem { Label("記録", systemImage: "scroll") }

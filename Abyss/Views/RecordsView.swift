@@ -19,7 +19,7 @@ struct RecordsView: View {
                         .padding(.top, 8)
 
                     if records.items.isEmpty {
-                        Text("まだ深淵に問うていない。")
+                        Text("まだ深淵を見つめていない。")
                             .font(.system(.callout, design: .serif))
                             .foregroundStyle(Abyss.dim)
                             .frame(maxWidth: .infinity, alignment: .center)
@@ -49,22 +49,16 @@ struct RecordsView: View {
     @ViewBuilder private func row(_ r: Record) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Label(r.kind == .consult ? "問い" : "予言",
-                      systemImage: r.kind == .consult ? "eye" : "sparkles")
+                Label("問い", systemImage: "eye")
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(Abyss.glow)
                 Spacer()
                 Text(df.string(from: r.date))
                     .font(.system(size: 11)).foregroundStyle(Abyss.dim)
             }
-            if r.kind == .consult {
-                Text(r.question)
-                    .font(.system(.subheadline, design: .serif))
-                    .foregroundStyle(Abyss.pale)
-                Text(r.answer)
-                    .font(.system(size: 22, weight: .bold, design: .serif))
-                    .foregroundStyle(r.answer == "然り" ? Abyss.irisHi : Abyss.mist)
-            }
+            Text(r.question)
+                .font(.system(.subheadline, design: .serif))
+                .foregroundStyle(Abyss.pale)
             Text("「\(r.lineJa)」")
                 .font(.system(.footnote, design: .serif))
                 .foregroundStyle(Abyss.mist)
